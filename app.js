@@ -1,30 +1,36 @@
 var express     = require('express'),
     bodyParser  = require("body-parser"),
-    mongodb     = require('mongodb'),
-    app         = express(),
     MongoClient = require('mongodb').MongoClient;
+
+var MONGO_URL        = "mongodb://localhost:27017/",
+    PORT             = 3000,
+    DB_NAME          = 'Venom',
+    COLLECTION_NAME  = 'Tweets',
+    CURSOR_QUERY_OBJ = {};
 
 var db,
     cursor,
-    previousDoc;
+    prevDocID;
 
+app = express();
 app.use(bodyParser.json());
 
-MongoClient.connect("mongodb://localhost:27017/Venom", function(err, database) {
+// http://mongodb.github.io/node-mongodb-native/driver-articles/mongoclient.html#mongoclient-connection-pooling
+MongoClient.connect(MONGO_URL + DB_NAME, function(err, database) {
   if(err) throw err;
 
   db = database;
-  cursor = db.collection('Tweets').find({});
+  cursor = db.collection(COLLECTION_NAME).find(CURSOR_QUERY_OBJ);
 
-  app.listen(3000);
-  console.log("Listening on port 3000");
+  app.listen(PORT);
+  console.log("Listening on port " + PORT);
 });
 
 
 app.get("/", function(req, res) {
   cursor.nextObject(function (err, doc) {
     if (doc) {
-      previousDoc = doc;
+      prevDocID = doc['_id'];
       res.end(doc['text']);
     } else {
       db.close();
@@ -38,20 +44,12 @@ app.post("/", function(req, res) {
   var labelName  = req.body['labelName'],
       labelValue = req.body['labelValue'];
 
+    updatePreviousObject(labelName, labelValue);
+
     cursor.nextObject(function (err, doc) {
-      var updateObject = Object.create(null);
 
       if (doc) {
-        if(labelName && previousDoc) {
-          updateObject[labelName] = labelValue;
-          db.collection('Tweets').update(
-            { _id:previousDoc['_id'] }, 
-            { $set: updateObject }, 
-            function (err, result) { if (err) console.error(err); }
-          );
-        }
-
-        previousDoc = doc;
+        prevDocID = doc['_id'];
         res.end(doc['text']);
 
       } else {
@@ -60,3 +58,17 @@ app.post("/", function(req, res) {
       }
     })
 });
+
+function updatePreviousObject (labelName, labelValue) {
+  if(labelName && prevDocID) {
+
+    var updateObject = Object.create(null);
+    updateObject[labelName] = labelValue;
+
+    db.collection(COLLECTION_NAME).update(
+      { _id: prevDocID }, 
+      { $set: updateObject }, 
+      function (err, result) { if (err) console.error(err); }
+    );
+  }
+}
