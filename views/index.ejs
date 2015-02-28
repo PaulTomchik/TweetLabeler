@@ -1,0 +1,56 @@
+<style>
+html {
+  background-color: black;  
+}
+
+#tweet {
+  width: 600px;
+  height: 100px;
+
+  position: absolute;
+  top:0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  margin: auto;
+
+  font-size: 150%;
+  background-color: #00003D; 
+  color: #7575C8;
+
+  border-width:5px;	
+  border-style:inset;
+
+  padding: 25px;
+}
+
+#tweet.active {
+  background-color: #00001F; 
+  color: #CCCCEB;
+}
+
+input {
+  background-color:#333333;
+  color:#999999;
+}
+
+#labelValueToKeyMap {
+  width:300px;
+}
+</style>
+
+
+
+<div id=tweet><%= tweet %></div>
+<div id='labelingFields'>
+  <input id="labelName" type="text">
+  <input id="labelValueToKeyMap" type="text">
+ <input id="setMapping" type="submit" value="Set Mapping">
+</div>
+
+
+
+<script type="text/javascript" src="jquery-2.1.3.min.js"></script>
+<script type="text/javascript" src="jquery.watermark.min.js"></script>
+<script type="text/javascript" src="labeler.js"></script>
