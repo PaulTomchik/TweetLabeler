@@ -53,7 +53,7 @@ app.post("/applyLabel", function(req, res) {
 
     if (labelName) {
       updatePreviousObject(labelName, labelValue);
-      resObj['message'] = "Updated previous tweet's '" + labelName + "' field to '" + labelValue + "'";
+      resObj['message'] = "\n\tUpdated tweet with Mongo _id = " + prevDocID + "; set field '" + labelName + "' to '" + labelValue + "'";
     } else {
       resObj['message'] = "Previous tweet was not labeled.";
     }
